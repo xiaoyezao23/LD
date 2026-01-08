@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>同德精卫健康自测（DEMO）</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__title">同德精卫</span>
+        <span class="brand__subtitle">健康自测 DEMO</span>
+      </div>
+      <button class="ghost" id="nav-home">返回首页</button>
+    </header>
+
+    <main class="container">
+      <section class="page" id="page-home" data-page>
+        <div class="card hero">
+          <div>
+            <h1>健康自测（3分钟）</h1>
+            <p class="muted">快速了解您的情绪状态</p>
+          </div>
+          <button class="primary" id="start-assessment">立即开始</button>
+        </div>
+        <p class="disclaimer">仅用于辅助评估与流程引导，不替代医生诊疗决策。</p>
+        <div class="entry-links">
+          <button class="secondary" data-entry="ai">来自 AI问诊</button>
+          <button class="secondary" data-entry="rehab">来自 康复首页</button>
+          <button class="secondary" data-entry="help">来自 一键求助页</button>
+        </div>
+      </section>
+
+      <section class="page" id="page-select" data-page hidden>
+        <h2>选择量表</h2>
+        <p class="muted">每张量表约需3分钟作答，自动计算评分，提供建议方向。</p>
+        <div class="grid">
+          <button class="card selectable" data-scale="phq9">
+            <h3>PHQ-9 抑郁自评量表</h3>
+            <p>9题｜0~27分</p>
+          </button>
+          <button class="card selectable" data-scale="gad7">
+            <h3>GAD-7 焦虑自评量表</h3>
+            <p>7题｜0~21分</p>
+          </button>
+        </div>
+      </section>
+
+      <section class="page" id="page-assessment" data-page hidden>
+        <div class="assessment-header">
+          <div>
+            <h2 id="scale-title">量表作答</h2>
+            <p class="muted" id="question-progress">第 1 / 9 题</p>
+          </div>
+          <div class="progress">
+            <div class="progress__bar" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="card question-card">
+          <h3 id="question-text">题目</h3>
+          <div class="options" id="options"></div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" id="prev-question">返回上一题</button>
+          <button class="ghost" id="save-draft">保存草稿</button>
+          <button class="secondary" id="end-assessment">结束自评</button>
+          <button class="primary" id="submit-assessment">提交答卷</button>
+        </div>
+        <p class="disclaimer">仅用于辅助评估与流程引导，不替代医生诊疗决策。</p>
+      </section>
+
+      <section class="page" id="page-result" data-page hidden>
+        <div class="result-header">
+          <span class="level-tag" id="level-tag">绿：低关注</span>
+          <h2 id="result-title">结果</h2>
+          <p id="result-summary" class="muted">总分 0</p>
+        </div>
+
+        <div id="risk-alert" class="alert" hidden>
+          <strong>检测到风险信号，请考虑尽快联系专业人员。</strong>
+          <div class="alert__actions">
+            <button class="danger" id="help-now">一键求助</button>
+            <button class="secondary" data-action="appointment">预约门诊</button>
+            <button class="ghost" data-action="hotline">热线电话</button>
+          </div>
+        </div>
+
+        <div class="card" id="action-card">
+          <h3>下一步建议</h3>
+          <div class="action-buttons" id="action-buttons"></div>
+        </div>
+
+        <div class="card">
+          <h3>复评提醒设置</h3>
+          <div class="remind-options">
+            <button class="secondary" data-remind="7">7天复评</button>
+            <button class="secondary" data-remind="14">14天复评</button>
+            <span id="remind-status" class="muted">暂未设置</span>
+          </div>
+        </div>
+
+        <div class="card" id="content-recommend" hidden>
+          <h3>自助调节内容推荐</h3>
+          <div class="grid">
+            <button class="tile" data-content="aroma">芳香疗法</button>
+            <button class="tile" data-content="breathing">冥想呼吸</button>
+            <button class="tile" data-content="yoga">简易瑜伽</button>
+            <button class="tile" data-content="journal">情绪日记</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" id="export-record">导出 assessment_record（CSV）</button>
+          <button class="ghost" id="go-select">重新选择量表</button>
+        </div>
+        <p class="disclaimer">仅用于辅助评估与流程引导，不替代医生诊疗决策。</p>
+      </section>
+
+      <section class="page" id="page-placeholder" data-page hidden>
+        <div class="card">
+          <h2 id="placeholder-title">占位页</h2>
+          <p id="placeholder-desc" class="muted">该功能为占位内容。</p>
+          <button class="primary" id="back-to-result">返回结果页</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal" id="help-modal" hidden>
+      <div class="modal__content">
+        <h3>检测到您可能需要进一步支持</h3>
+        <p class="muted">可联系专业人员获取帮助。</p>
+        <div class="modal__actions">
+          <button class="danger" data-help="assist">一键求助（跳转页）</button>
+          <button class="secondary" data-help="hotline">热线电话（占位）</button>
+          <button class="ghost" data-help="appointment">去预约门诊（占位）</button>
+        </div>
+        <button class="ghost" id="close-help">关闭</button>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
