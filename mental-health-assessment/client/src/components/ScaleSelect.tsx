@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAssessment } from '@/contexts/AssessmentContext';
 import { PHQ9, GAD7 } from '@/data/scales';
 import { ArrowLeft, Brain, Heart, Clock, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PrivacyDialog from './PrivacyDialog';
 
 /**
  * 量表选择页
@@ -10,6 +12,7 @@ import { motion } from 'framer-motion';
  * - 卡片式选择
  * - 清晰的量表说明
  * - 温暖的视觉引导
+ * - 隐私告知弹窗
  */
 
 interface ScaleCardProps {
@@ -56,9 +59,42 @@ function ScaleCard({ scale, icon, color, onClick }: ScaleCardProps) {
 
 export function ScaleSelect() {
   const { setStep, selectScale } = useAssessment();
+  
+  // 隐私告知弹窗状态
+  const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
+  const [pendingScaleId, setPendingScaleId] = useState<'PHQ-9' | 'GAD-7' | null>(null);
+
+  // 点击量表卡片时，先显示隐私告知弹窗
+  const handleScaleClick = (scaleId: 'PHQ-9' | 'GAD-7') => {
+    setPendingScaleId(scaleId);
+    setShowPrivacyDialog(true);
+  };
+
+  // 用户同意隐私告知
+  const handleAcceptPrivacy = () => {
+    setShowPrivacyDialog(false);
+    if (pendingScaleId) {
+      selectScale(pendingScaleId);
+    }
+    setPendingScaleId(null);
+  };
+
+  // 用户拒绝隐私告知
+  const handleRejectPrivacy = () => {
+    setShowPrivacyDialog(false);
+    setPendingScaleId(null);
+    setStep('home');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-soft">
+      {/* 隐私告知弹窗 */}
+      <PrivacyDialog
+        open={showPrivacyDialog}
+        onAccept={handleAcceptPrivacy}
+        onReject={handleRejectPrivacy}
+      />
+
       {/* 顶部导航 */}
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-border/50">
         <div className="container max-w-lg mx-auto px-4 h-14 flex items-center">
@@ -94,14 +130,14 @@ export function ScaleSelect() {
               scale={PHQ9}
               icon={<Heart className="w-6 h-6 text-white" />}
               color="bg-gradient-to-br from-rose-400 to-rose-500"
-              onClick={() => selectScale('PHQ-9')}
+              onClick={() => handleScaleClick('PHQ-9')}
             />
 
             <ScaleCard
               scale={GAD7}
               icon={<Brain className="w-6 h-6 text-white" />}
               color="bg-gradient-to-br from-violet-400 to-violet-500"
-              onClick={() => selectScale('GAD-7')}
+              onClick={() => handleScaleClick('GAD-7')}
             />
           </div>
 

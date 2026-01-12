@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAssessment } from '@/contexts/AssessmentContext';
 import { selfHelpContents } from '@/data/scales';
@@ -12,13 +13,17 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import SemiCircleProgress from './SemiCircleProgress';
+import ChatWindow from './ChatWindow';
 
 /**
  * 结果页
  * 设计风格：温暖陪伴风格
+ * - 半圆形分数进度条
  * - 关注等级色彩标识
  * - 清晰的结论摘要
  * - 温暖的下一步建议
+ * - 5-9分区间显示聊天窗口
  */
 
 const levelStyles = {
@@ -27,28 +32,28 @@ const levelStyles = {
     border: 'border-emerald-200',
     text: 'text-emerald-700',
     badge: 'bg-emerald-500',
-    icon: '😊',
+    progressLevel: 'low' as const,
   },
   yellow: {
     bg: 'bg-amber-50',
     border: 'border-amber-200',
     text: 'text-amber-700',
     badge: 'bg-amber-500',
-    icon: '🤔',
+    progressLevel: 'medium' as const,
   },
   orange: {
     bg: 'bg-orange-50',
     border: 'border-orange-200',
     text: 'text-orange-700',
     badge: 'bg-orange-500',
-    icon: '😟',
+    progressLevel: 'high' as const,
   },
   red: {
     bg: 'bg-red-50',
     border: 'border-red-200',
     text: 'text-red-700',
     badge: 'bg-red-500',
-    icon: '😰',
+    progressLevel: 'critical' as const,
   },
 };
 
@@ -61,6 +66,12 @@ export function Result() {
     setStep,
     resetAssessment,
   } = useAssessment();
+
+  // 聊天窗口状态 - 5-9分区间显示
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  
+  // 判断是否显示聊天窗口（5-9分区间）
+  const showChatWindow = totalScore >= 5 && totalScore <= 9;
 
   if (!selectedScale || !levelConfig) {
     return null;
@@ -134,35 +145,49 @@ export function Result() {
         >
           {/* 结果卡片 */}
           <div className={`rounded-3xl p-6 ${style.bg} ${style.border} border-2 mb-6`}>
-            {/* 表情和等级 */}
-            <div className="text-center mb-4">
-              <div className="text-5xl mb-3">{style.icon}</div>
-              <span
-                className={`inline-block px-4 py-1.5 rounded-full text-white text-sm font-medium ${style.badge}`}
-              >
-                {levelConfig.label}
-              </span>
-            </div>
-
-            {/* 分数展示 */}
-            <div className="text-center mb-4">
-              <div className="text-4xl font-bold text-foreground mb-1">
-                {totalScore}
-                <span className="text-lg text-muted-foreground font-normal">
-                  /{maxScore}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {selectedScale.fullName}
-              </p>
-            </div>
+            {/* 半圆形分数进度条 */}
+            <SemiCircleProgress
+              score={totalScore}
+              maxScore={maxScore}
+              level={style.progressLevel}
+              scaleName={selectedScale.fullName}
+            />
 
             {/* 评估结论 */}
-            <div className={`p-4 rounded-xl bg-white/60 ${style.text}`}>
+            <div className={`p-4 rounded-xl bg-white/60 ${style.text} mt-6`}>
               <p className="text-sm font-medium mb-1">{levelConfig.description}</p>
               <p className="text-sm opacity-80">{levelConfig.recommendation}</p>
             </div>
           </div>
+
+          {/* 5-9分区间提示卡片 */}
+          {showChatWindow && !isChatOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="mb-6 p-4 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-2xl border border-primary/20"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-foreground mb-1">想聊聊吗？</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    我注意到你最近可能有一些轻微的情绪波动。如果你愿意，可以和我聊聊你的感受，我会认真倾听。
+                  </p>
+                  <Button
+                    onClick={() => setIsChatOpen(true)}
+                    className="rounded-full bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+                    size="sm"
+                  >
+                    开始聊天
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* 推荐动作按钮 */}
           <div className="space-y-3 mb-6">
@@ -282,6 +307,17 @@ export function Result() {
           本测评仅用于辅助评估与流程引导，不替代医生诊疗决策
         </p>
       </div>
+
+      {/* 聊天窗口 - 5-9分区间显示 */}
+      {showChatWindow && (
+        <ChatWindow
+          isOpen={isChatOpen}
+          onOpen={() => setIsChatOpen(true)}
+          onClose={() => setIsChatOpen(false)}
+          scaleName={selectedScale.fullName}
+          score={totalScore}
+        />
+      )}
     </div>
   );
 }
