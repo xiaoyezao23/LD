@@ -35,7 +35,7 @@ export function HomeCard() {
         {/* Hero 图片区域 */}
         <div className="relative mb-6 rounded-3xl overflow-hidden shadow-xl">
           <img
-            src="/images/hero-bg.png"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663281313400/bDgmXmawyzC2CraT46LBms/hero-bg_bd214471.png"
             alt="心理健康自测"
             className="w-full h-48 object-cover"
           />

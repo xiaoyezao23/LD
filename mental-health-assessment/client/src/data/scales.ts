@@ -210,7 +210,7 @@ export const selfHelpContents: SelfHelpContent[] = [
     type: '冥想呼吸',
     description: '通过引导式冥想，帮助您放松身心，缓解压力',
     duration: '5分钟',
-    image: '/images/meditation-card.png',
+    image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663281313400/bDgmXmawyzC2CraT46LBms/meditation-card_a57d25b7.png',
     targetLevels: ['green', 'yellow'],
   },
   {
@@ -219,7 +219,7 @@ export const selfHelpContents: SelfHelpContent[] = [
     type: '呼吸训练',
     description: '学习腹式呼吸技巧，快速平复焦虑情绪',
     duration: '3分钟',
-    image: '/images/breathing-card.png',
+    image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663281313400/bDgmXmawyzC2CraT46LBms/breathing-card_0530c8a4.png',
     targetLevels: ['green', 'yellow'],
   },
   {
@@ -228,7 +228,7 @@ export const selfHelpContents: SelfHelpContent[] = [
     type: '简易运动',
     description: '轻柔的伸展动作，释放身体紧张感',
     duration: '10分钟',
-    image: '/images/exercise-card.png',
+    image: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663281313400/bDgmXmawyzC2CraT46LBms/exercise-card_4b1924c5.png',
     targetLevels: ['green', 'yellow'],
   },
 ];
