@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Scale, LevelConfig, getScale, getLevelConfig, checkRiskFlag } from '@/data/scales';
+import { UserProfileData } from '@/components/UserProfile';
 
 /**
  * 测评状态管理
  * 设计风格：温暖陪伴风格
+ * 
+ * 新增功能：
+ * - PHQ-9第9题风险拦截
+ * - 用户档案管理
+ * - 匿名使用支持
  */
 
-export type AssessmentStep = 'home' | 'select' | 'assessment' | 'result' | 'selfhelp' | 'help';
+export type AssessmentStep = 'home' | 'profile' | 'select' | 'assessment' | 'result' | 'selfhelp' | 'help';
 
 interface AssessmentState {
   step: AssessmentStep;
@@ -17,6 +23,10 @@ interface AssessmentState {
   levelConfig: LevelConfig | null;
   hasRiskFlag: boolean;
   completedAt: Date | null;
+  // 风险拦截
+  showRiskIntercept: boolean;
+  // 用户档案
+  userProfile: UserProfileData | null;
 }
 
 interface AssessmentContextType extends AssessmentState {
@@ -26,6 +36,8 @@ interface AssessmentContextType extends AssessmentState {
   goToPreviousQuestion: () => void;
   submitAssessment: () => void;
   resetAssessment: () => void;
+  setShowRiskIntercept: (show: boolean) => void;
+  setUserProfile: (profile: UserProfileData) => void;
   canGoBack: boolean;
   canSubmit: boolean;
   progress: number;
@@ -40,6 +52,8 @@ const initialState: AssessmentState = {
   levelConfig: null,
   hasRiskFlag: false,
   completedAt: null,
+  showRiskIntercept: false,
+  userProfile: null,
 };
 
 const AssessmentContext = createContext<AssessmentContextType | undefined>(undefined);
@@ -59,6 +73,7 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
         selectedScale: scale,
         currentQuestionIndex: 0,
         answers: [],
+        showRiskIntercept: false,
         step: 'assessment',
       }));
     }
@@ -71,10 +86,22 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
       const newAnswers = [...prev.answers];
       newAnswers[prev.currentQuestionIndex] = score;
 
+      // PHQ-9第9题风险拦截：选择≥1分时立即中断
+      if (
+        prev.selectedScale.id === 'PHQ-9' &&
+        prev.currentQuestionIndex === 8 && // 第9题（索引8）
+        score >= 1
+      ) {
+        return {
+          ...prev,
+          answers: newAnswers,
+          showRiskIntercept: true,
+        };
+      }
+
       const isLastQuestion = prev.currentQuestionIndex === prev.selectedScale.questions.length - 1;
 
       if (isLastQuestion) {
-        // 最后一题，保持在当前位置，等待用户提交
         return {
           ...prev,
           answers: newAnswers,
@@ -122,7 +149,18 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetAssessment = useCallback(() => {
-    setState(initialState);
+    setState((prev) => ({
+      ...initialState,
+      userProfile: prev.userProfile, // 保留用户档案
+    }));
+  }, []);
+
+  const setShowRiskIntercept = useCallback((show: boolean) => {
+    setState((prev) => ({ ...prev, showRiskIntercept: show }));
+  }, []);
+
+  const setUserProfile = useCallback((profile: UserProfileData) => {
+    setState((prev) => ({ ...prev, userProfile: profile }));
   }, []);
 
   const canGoBack = state.currentQuestionIndex > 0;
@@ -145,6 +183,8 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
         goToPreviousQuestion,
         submitAssessment,
         resetAssessment,
+        setShowRiskIntercept,
+        setUserProfile,
         canGoBack,
         canSubmit,
         progress,

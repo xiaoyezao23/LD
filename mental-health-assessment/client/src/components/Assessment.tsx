@@ -14,6 +14,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import RiskInterceptDialog from './RiskInterceptDialog';
+import { toast } from 'sonner';
 
 /**
  * 量表作答页
@@ -21,6 +23,7 @@ import {
  * - 单题逐页展示
  * - 清晰的进度条
  * - 柔和的选项交互
+ * - PHQ-9第9题风险拦截
  */
 
 export function Assessment() {
@@ -31,11 +34,13 @@ export function Assessment() {
     progress,
     canGoBack,
     canSubmit,
+    showRiskIntercept,
     answerQuestion,
     goToPreviousQuestion,
     submitAssessment,
     resetAssessment,
     setStep,
+    setShowRiskIntercept,
   } = useAssessment();
 
   if (!selectedScale) {
@@ -46,6 +51,9 @@ export function Assessment() {
   const currentAnswer = answers[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === selectedScale.questions.length - 1;
 
+  // PHQ-9第9题特殊提示
+  const isPHQ9Question9 = selectedScale.id === 'PHQ-9' && currentQuestionIndex === 8;
+
   const handleOptionClick = (value: number) => {
     answerQuestion(value);
   };
@@ -55,8 +63,44 @@ export function Assessment() {
     setStep('home');
   };
 
+  // 风险拦截 - 拨打热线
+  const handleCallHotline = () => {
+    setShowRiskIntercept(false);
+    // 尝试拨打电话
+    window.location.href = 'tel:12356';
+    toast.info('正在拨打心理援助热线', {
+      description: '电话号码：12356',
+    });
+  };
+
+  // 风险拦截 - 预约挂号
+  const handleBookAppointment = () => {
+    setShowRiskIntercept(false);
+    toast.info('正在跳转预约挂号', {
+      description: '即将为您打开医院预约挂号页面',
+    });
+    // 这里可以跳转到医院预约挂号系统
+    resetAssessment();
+    setStep('help');
+  };
+
+  // 风险拦截 - 返回首页
+  const handleGoHome = () => {
+    setShowRiskIntercept(false);
+    resetAssessment();
+    setStep('home');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-soft flex flex-col">
+      {/* PHQ-9第9题风险拦截弹窗 */}
+      <RiskInterceptDialog
+        open={showRiskIntercept}
+        onCallHotline={handleCallHotline}
+        onBookAppointment={handleBookAppointment}
+        onGoHome={handleGoHome}
+      />
+
       {/* 顶部导航 */}
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-border/50">
         <div className="container max-w-lg mx-auto px-4">
@@ -127,15 +171,35 @@ export function Assessment() {
             </div>
 
             {/* 问题内容 */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm mb-6">
+            <div className={`rounded-2xl p-5 shadow-sm mb-6 ${
+              isPHQ9Question9 
+                ? 'bg-rose-50 border-2 border-rose-200' 
+                : 'bg-white'
+            }`}>
               <div className="flex items-start gap-3">
-                <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
+                <span className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${
+                  isPHQ9Question9
+                    ? 'bg-rose-100 text-rose-600'
+                    : 'bg-primary/10 text-primary'
+                }`}>
                   {currentQuestion.id}
                 </span>
                 <p className="text-foreground font-medium leading-relaxed pt-1">
                   {currentQuestion.text}
                 </p>
               </div>
+              {/* PHQ-9第9题特殊提示 */}
+              {isPHQ9Question9 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 pt-3 border-t border-rose-200"
+                >
+                  <p className="text-xs text-rose-500 leading-relaxed">
+                    这道题涉及一些敏感内容，请您如实作答。如果您正在经历困难，请记住专业帮助随时可用。
+                  </p>
+                </motion.div>
+              )}
             </div>
 
             {/* 选项列表 */}

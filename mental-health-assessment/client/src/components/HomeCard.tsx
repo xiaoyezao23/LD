@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAssessment } from '@/contexts/AssessmentContext';
-import { Clock, Heart, Shield } from 'lucide-react';
+import { Clock, Heart, Shield, UserCircle, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 /**
@@ -9,10 +9,14 @@ import { motion } from 'framer-motion';
  * - 渐变背景营造温暖感
  * - 大圆角卡片设计
  * - 清晰的行动引导
+ * - 匿名使用支持
  */
 
 export function HomeCard() {
-  const { setStep } = useAssessment();
+  const { setStep, userProfile } = useAssessment();
+
+  const displayName = userProfile?.nickname || '匿名用户';
+  const hasProfile = userProfile !== null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-soft">
@@ -44,6 +48,32 @@ export function HomeCard() {
 
         {/* 主卡片 */}
         <div className="bg-white rounded-3xl shadow-lg p-6 space-y-6">
+          {/* 匿名/用户状态栏 */}
+          <div className="flex items-center justify-between p-3 bg-primary/5 rounded-xl">
+            <div className="flex items-center gap-2">
+              <UserCircle className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                {displayName}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep('profile')}
+              className="text-xs text-primary h-7 px-2"
+            >
+              {hasProfile ? '编辑档案' : '填写档案'}
+            </Button>
+          </div>
+
+          {/* 匿名保护提示 */}
+          <div className="flex items-center gap-2 px-1">
+            <Eye className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              支持完全匿名使用，无需注册登录，您的隐私受到严格保护
+            </p>
+          </div>
+
           {/* 特点列表 */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -72,7 +102,7 @@ export function HomeCard() {
               </div>
               <div>
                 <p className="font-medium text-foreground">隐私保护</p>
-                <p className="text-sm text-muted-foreground">您的数据安全有保障</p>
+                <p className="text-sm text-muted-foreground">匿名使用，数据安全有保障</p>
               </div>
             </div>
           </div>

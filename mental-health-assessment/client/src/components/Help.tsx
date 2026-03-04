@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useAssessment } from '@/contexts/AssessmentContext';
-import { ArrowLeft, Phone, Calendar, MessageCircle, Heart } from 'lucide-react';
+import { ArrowLeft, Phone, Calendar, MessageCircle, Heart, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -10,20 +10,23 @@ import { toast } from 'sonner';
  * - 温暖的关怀提示
  * - 清晰的求助入口
  * - 紧急联系方式
+ * - 12356心理援助热线
+ * - 医院预约挂号入口
  */
 
 export function Help() {
   const { setStep } = useAssessment();
 
   const handleCall = (number: string, name: string) => {
+    window.location.href = `tel:${number}`;
     toast.info(`正在拨打${name}`, {
       description: `电话号码：${number}`,
     });
   };
 
   const handleAppointment = () => {
-    toast.info('预约功能即将上线', {
-      description: '敬请期待',
+    toast.info('预约挂号功能即将上线', {
+      description: '敬请期待，您也可以直接拨打医院电话预约',
     });
   };
 
@@ -71,29 +74,40 @@ export function Help() {
 
           {/* 求助选项 */}
           <div className="space-y-4">
-            {/* 24小时心理援助热线 */}
+            {/* 12356 心理援助热线 - 首要推荐 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-2xl p-5 shadow-sm border border-border/50"
+              className="bg-white rounded-2xl p-5 shadow-sm border-2 border-red-200 relative overflow-hidden"
             >
+              <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-3 py-1 rounded-bl-xl font-medium">
+                推荐
+              </div>
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
                   <Phone className="w-6 h-6 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">24小时心理援助热线</h3>
-                  <p className="text-sm text-muted-foreground">全天候专业心理咨询服务</p>
+                  <h3 className="font-semibold text-foreground">心理援助热线</h3>
+                  <p className="text-sm text-muted-foreground">24小时全天候专业心理咨询</p>
                 </div>
               </div>
               <div className="space-y-2">
                 <Button
+                  onClick={() => handleCall('12356', '12356心理援助热线')}
+                  className="w-full h-12 rounded-full bg-red-500 hover:bg-red-600 text-base font-medium"
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  拨打 12356
+                </Button>
+                <Button
                   onClick={() => handleCall('400-161-9995', '全国心理援助热线')}
-                  className="w-full h-11 rounded-full bg-red-500 hover:bg-red-600"
+                  variant="outline"
+                  className="w-full h-11 rounded-full border-red-200 text-red-600 hover:bg-red-50"
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  400-161-9995
+                  400-161-9995（全国热线）
                 </Button>
                 <Button
                   onClick={() => handleCall('010-82951332', '北京心理危机研究与干预中心')}
@@ -101,12 +115,12 @@ export function Help() {
                   className="w-full h-11 rounded-full"
                 >
                   <Phone className="w-4 h-4 mr-2" />
-                  010-82951332
+                  010-82951332（危机干预）
                 </Button>
               </div>
             </motion.div>
 
-            {/* 预约门诊 */}
+            {/* 预约医院门诊挂号 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -118,7 +132,7 @@ export function Help() {
                   <Calendar className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">预约专科门诊</h3>
+                  <h3 className="font-semibold text-foreground">预约医院门诊挂号</h3>
                   <p className="text-sm text-muted-foreground">获取专业医生的评估与指导</p>
                 </div>
               </div>
@@ -127,8 +141,11 @@ export function Help() {
                 className="w-full h-11 rounded-full bg-gradient-primary hover:opacity-90"
               >
                 <Calendar className="w-4 h-4 mr-2" />
-                立即预约
+                立即预约挂号
               </Button>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                建议优先选择精神科或心理科门诊
+              </p>
             </motion.div>
 
             {/* 在线咨询 */}
@@ -165,6 +182,19 @@ export function Help() {
               <span className="font-bold"> 120 </span>
               或前往最近的医院急诊。
             </p>
+          </div>
+
+          {/* 返回首页 */}
+          <div className="mt-6">
+            <Button
+              onClick={() => {
+                setStep('home');
+              }}
+              variant="ghost"
+              className="w-full text-muted-foreground"
+            >
+              返回首页
+            </Button>
           </div>
         </motion.div>
       </div>

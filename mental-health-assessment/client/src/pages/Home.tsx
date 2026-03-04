@@ -5,6 +5,7 @@ import { Assessment } from '@/components/Assessment';
 import { Result } from '@/components/Result';
 import { SelfHelp } from '@/components/SelfHelp';
 import { Help } from '@/components/Help';
+import UserProfile from '@/components/UserProfile';
 import { AnimatePresence, motion } from 'framer-motion';
 
 /**
@@ -13,15 +14,16 @@ import { AnimatePresence, motion } from 'framer-motion';
  * 
  * 页面流程：
  * 1. 首页入口卡片 (home)
- * 2. 量表选择页 (select)
- * 3. 量表作答页 (assessment)
- * 4. 结果页 (result)
- * 5. 自助调适页 (selfhelp)
- * 6. 求助页 (help)
+ * 2. 用户档案（选填） (profile)
+ * 3. 量表选择页 (select)
+ * 4. 量表作答页 (assessment)
+ * 5. 结果页 (result)
+ * 6. 自助调适页 (selfhelp)
+ * 7. 求助页 (help)
  */
 
 function AssessmentFlow() {
-  const { step } = useAssessment();
+  const { step, setStep, setUserProfile, userProfile } = useAssessment();
 
   return (
     <AnimatePresence mode="wait">
@@ -33,6 +35,17 @@ function AssessmentFlow() {
         transition={{ duration: 0.2 }}
       >
         {step === 'home' && <HomeCard />}
+        {step === 'profile' && (
+          <UserProfile
+            onBack={() => setStep('home')}
+            onSave={(data) => {
+              setUserProfile(data);
+              setStep('home');
+            }}
+            onSkip={() => setStep('home')}
+            initialData={userProfile || undefined}
+          />
+        )}
         {step === 'select' && <ScaleSelect />}
         {step === 'assessment' && <Assessment />}
         {step === 'result' && <Result />}
